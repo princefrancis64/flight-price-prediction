@@ -1,12 +1,11 @@
 import pymongo
 import json
 import pandas as pd
-
+from flight.config import mongo_client
 
 
 ### Provide the mongodb localhost url to connect python to mongodb
-client = pymongo.MongoClient('mongodb+srv://princefrancis64:Oejb2e2l74Gz4NAK@cluster0.o5qm0dq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-
+client = mongo_client
 
 
 DATABASE_NAME = 'flight'
