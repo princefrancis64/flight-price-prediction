@@ -23,11 +23,6 @@ class DataIngestion:
             )
             logging.info("Save the complete data into feature store")
 
-            ### dropping the rows with NAN values
-            df.dropna(inplace=True)
-            ## reset the index
-            df.reset_index(drop=True,inplace=True)
-
             ## Save data into feature store
             logging.info("Creating feature store folder if not available")
             feature_store_dir = os.path.dirname(self.data_ingestion_config.feature_store_file_path)

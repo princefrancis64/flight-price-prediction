@@ -1,5 +1,7 @@
 from datetime import datetime
-import os
+import os,sys
+from flight.logger import logging
+from flight.exception import FlightException
 
 
 FILE_NAME = 'flight_price.csv'
@@ -22,7 +24,21 @@ class DataIngestionConfig:
         self.test_file_path = os.path.join(self.data_ingestion_dir,"dataset",TEST_FILE_NAME)
         self.train_length = 10683
 
-class DataValidationConfig:...
+    def to_dict(self,)->dict:
+        try:
+            pass
+        except Exception as e:
+            raise FlightException(e,sys) 
+        
+class DataValidationConfig:
+
+    def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        self.data_validation_dir = os.path.join(training_pipeline_config,"data_validation")
+        self.report_file_path = os.path.join(self.data_validation_dir,"report.yaml")
+        self.missing_threshold:float = 0.2
+        self.base_file_path = os.path.join("flight_price_set1.csv")
+        
+
 class DataTransformationConfig:...
 class ModelTrainerConfig:...
 class ModelEvaluationConfig:...
