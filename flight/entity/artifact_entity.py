@@ -4,6 +4,7 @@ from dataclasses import dataclass
 class DataIngestionArtifact:
     feature_store_file_path:str
     train_file_path:str
+    val_file_path:str
     test_file_path:str
 
 @dataclass
@@ -14,4 +15,11 @@ class DataValidationArtifact:
 class DataTransformationArtifact:
     transform_object_file_path:str
     train_transformed_data:str
+    val_transformed_data:str
     test_transformed_data:str
+
+@dataclass
+class ModelTrainerArtifact:
+    model_path:str
+    r2_score_train:float
+    r2_score_test:float

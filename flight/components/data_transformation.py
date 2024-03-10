@@ -8,8 +8,10 @@ import pandas as pd,numpy as np
 from typing import Optional
 from flight import utils
 from sklearn.impute import SimpleImputer
-from flight.utils import save_object,feature_engineering
+from flight.utils import save_object
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from flight import transformation
 
 
 
@@ -43,7 +45,7 @@ class DataTransformation:
             ############# READING THE DATASET################
             logging.info("Reading the dataset")
             df = pd.read_csv(self.data_ingestion_artifact.feature_store_file_path)
-
+            test = pd.read_csv(self.data_ingestion_artifact.test_file_path)
 
             ############ IMPUTING THE MISSING VALUES ############
             logging.info(f"Before Imputing:df has {len(df[df.isna().any(axis=1)])} null values")
@@ -52,34 +54,27 @@ class DataTransformation:
             imputer.fit(df)
             
             df = pd.DataFrame(imputer.transform(df),columns=df.columns)
-            logging.info(f"After imputing X_train has :{len(df[df.isna().any(axis=1)])} null values")
+            logging.info(f"After imputing df has :{len(df[df.isna().any(axis=1)])} null values")
             
-            ############ FEATURE ENGINEERING ###################
-            df = feature_engineering(df)
-            
-
-            ### Handling the outliers in the Price column
-            df.loc[df['Price']>40000,'Price'] = np.median(df['Price'])
-
-            ### selecting the input features
-            logging.info("Input features:X")
+            ### Splitting into independent and output feature
             X = df.drop('Price',axis=1)
+            y = df['Price'].astype('float')
 
-            logging.info("Ouput variable:y")
-            ### selecting the output variable 'Price'
-            y = df['Price']
+            ############ FEATURE ENGINEERING ###################
+            X = transformation.feature_engineering(df)
+            test = transformation.feature_engineering(test)
 
-            train_len = 10683
-            X_train = X.iloc[:train_len,:]
-            X_test = X.iloc[train_len:,:]
-            y_train = y.iloc[:train_len]
-            y_test = y.iloc[train_len:]
+
+            #######################################################
+            
+            ### Handling the outliers in the Price column
+            y[y>40000] = np.median(y)
+
+            ### Splitting the dataset
+            X_train,X_test,y_train,y_test = train_test_split(X,y,train_size=0.8,random_state=42)
                        
 
-            ################# FEATURE ENGINEERING ########################
-            
-            
-            columns = X_train.columns
+            ################# SCALING THE FEATURES ########################
 
             scaler =MinMaxScaler()
             X_train = scaler.fit_transform(X_train)
@@ -92,12 +87,15 @@ class DataTransformation:
             df_test = np.c_[X_test,y_test]
             utils.save_numpy_array(file_path=self.data_transformation_config.transformed_train_data_path,
                                    array = df_train)
-            utils.save_numpy_array(file_path=self.data_transformation_config.transformed_test_data_path,
+            utils.save_numpy_array(file_path=self.data_transformation_config.transformed_val_data_path,
                                    array=df_test)
+            utils.save_numpy_array(file_path=self.data_transformation_config.transformed_test_data_path,
+                                   array=test)
             
             data_transformation_artifact = artifact_entity.DataTransformationArtifact(
                 transform_object_file_path=self.data_transformation_config.transform_object_path,
                 train_transformed_data= self.data_transformation_config.transformed_train_data_path,
+                val_transformed_data = self.data_transformation_config.transformed_val_data_path,
                 test_transformed_data= self.data_transformation_config.transformed_test_data_path
             )
 

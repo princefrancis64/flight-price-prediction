@@ -9,22 +9,19 @@ client = mongo_client
 
 
 DATABASE_NAME = 'flight'
-COLLECTION_NAME = 'price'
+COLLECTION_NAME1 = 'train'
+COLLECTION_NAME2 = 'test'
 
 if __name__=="__main__":
-    df_train = pd.read_excel('Data_Train.xlsx')
-    train_len = df_train.shape[0]
-    ## creating test dataset
+    train= pd.read_excel('Data_Train.xlsx')
     test = pd.read_excel('Test_set.xlsx')
-    sample_submission = pd.read_excel('Sample_submission.xlsx')
-    df_test = pd.concat([test,sample_submission],axis=1)
-    test_len = df_test.shape[0]
-    ##creating a single dataframe
-    df  = pd.concat([df_train,df_test],axis=0)
 
     ## Converting dataframe to json to dump it into mongodb
-    df.reset_index(drop=True,inplace=True)
-    json_record = list(json.loads(df.T.to_json()).values())
+    train.reset_index(drop=True,inplace=True)
+    test.reset_index(drop=True,inplace=True)
+    json_record_train = list(json.loads(train.T.to_json()).values())
+    json_record_test = list(json.loads(test.T.to_json()).values())
 
     ## Inserting converted json to mongodb
-    client[DATABASE_NAME][COLLECTION_NAME].insert_many(json_record)
+    client[DATABASE_NAME][COLLECTION_NAME1].insert_many(json_record_train)
+    client[DATABASE_NAME][COLLECTION_NAME2].insert_many(json_record_test)
