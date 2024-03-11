@@ -1,9 +1,9 @@
-from flight.entity.config_entity import DataIngestionConfig, TrainingPipelineConfig,DataValidationConfig,DataTransformationConfig,ModelTrainerConfig
-from flight.entity.artifact_entity import DataIngestionArtifact,DataValidationArtifact,DataTransformationArtifact,ModelTrainerArtifact
+from flight.entity.config_entity import DataIngestionConfig, TrainingPipelineConfig,DataValidationConfig,DataTransformationConfig,ModelTrainerConfig,ModelEvaluationConfig
 from flight.components.data_ingestion import DataIngestion
 from flight.components.data_validation import DataValidation
 from flight.components.data_transformation import DataTransformation
 from flight.components.model_trainer import ModelTrainer
+from flight.components.model_evaluation import ModelEvaluation
 
 
     
@@ -26,6 +26,11 @@ if __name__=="__main__":
         model_trainer_config = ModelTrainerConfig(training_pipeline_config=training_pipeline_config)
         model_trainer = ModelTrainer(model_trainer_config=model_trainer_config,data_transformation_artifact=data_transformation_artifact)
         model_trainer_artifact = model_trainer.initiate_trainer_modle()
+
+        model_evaluation_config = ModelEvaluationConfig(training_pipeline_config=training_pipeline_config)
+        model_evaluation = ModelEvaluation(model_evaluation_config=model_evaluation_config,data_ingestion_artifact=data_ingestion_artifact
+                                           ,data_transformation_artifact=data_transformation_artifact,model_trainer_artifact=model_trainer_artifact)
+        model_evaluation_artifact = model_evaluation.initiate_model_evaluation()
     except Exception as e:
         print(e)
 

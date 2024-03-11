@@ -106,16 +106,16 @@ class ModelTrainer:
                                 \n [Actual threshold:{diff}]")
             
             ################### HYPERPARAMETER TUNING ####################################
-            r2_train_cat,r2_test_cat,best_estimator = self.hyper_param_tuning(
-                X_train= X_train_scaled,
-                X_test = X_test_scaled,
-                y_train = y_train,
-                y_test = y_test)
-            if (r2_train_cat>r2_score_train) and (r2_test_cat>r2_score_test):
-                r2_score_train = r2_train_cat
-                r2_score_test = r2_test_cat
-                model = best_estimator
-                logging.info(f' Model accuracy increased with hyperparameter tuning')
+            # r2_train_cat,r2_test_cat,best_estimator = self.hyper_param_tuning(
+            #     X_train= X_train_scaled,
+            #     X_test = X_test_scaled,
+            #     y_train = y_train,
+            #     y_test = y_test)
+            # if (r2_train_cat>r2_score_train) and (r2_test_cat>r2_score_test):
+            #     r2_score_train = r2_train_cat
+            #     r2_score_test = r2_test_cat
+            #     model = best_estimator
+            #     logging.info(f' Model accuracy increased with hyperparameter tuning')
                 
 
 
