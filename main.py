@@ -4,7 +4,7 @@ from flight.components.data_validation import DataValidation
 from flight.components.data_transformation import DataTransformation
 from flight.components.model_trainer import ModelTrainer
 from flight.components.model_evaluation import ModelEvaluation
-
+from flight.components.model_pusher import ModelPusher
 
     
 
@@ -31,6 +31,14 @@ if __name__=="__main__":
         model_evaluation = ModelEvaluation(model_evaluation_config=model_evaluation_config,data_ingestion_artifact=data_ingestion_artifact
                                            ,data_transformation_artifact=data_transformation_artifact,model_trainer_artifact=model_trainer_artifact)
         model_evaluation_artifact = model_evaluation.initiate_model_evaluation()
+
+
+        model_pusher = ModelPusher(model_trainer_config=model_trainer_config,data_transformation_artifact=data_transformation_artifact,
+                                   model_evaluation_config=model_evaluation_config,
+                                   model_trainer_artifact=model_trainer_artifact
+                                   )
+        model_pusher_artifact = model_pusher.initiate_model_pusher()
+
     except Exception as e:
         print(e)
 

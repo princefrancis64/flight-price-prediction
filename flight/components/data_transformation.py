@@ -12,6 +12,8 @@ from flight.utils import save_object
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from flight import transformation
+from catboost import CatBoostRegressor
+from sklearn.decomposition import PCA
 
 
 
@@ -29,6 +31,16 @@ class DataTransformation:
         try:
             simple_imputer = SimpleImputer(strategy='most_frequent',missing_values=np.NAN)
             return simple_imputer
+        except Exception as e:
+            raise FlightException(e,sys)
+    
+    def pca_transformation(self,X_train,X_test,test):
+        try:
+            pca=PCA(n_components=18)
+            X_train_pca = pca.fit_transform(X_train)
+            X_test_pca = pca.transform(X_test)
+            test_pca = pca.transform(test)
+            return X_train_pca,X_test_pca,test_pca
         except Exception as e:
             raise FlightException(e,sys)
         
@@ -59,9 +71,9 @@ class DataTransformation:
             ### Splitting into independent and output feature
             X = df.drop('Price',axis=1)
             y = df['Price'].astype('float')
-
+            
             ############ FEATURE ENGINEERING ###################
-            X = transformation.feature_engineering(df)
+            X = transformation.feature_engineering(X)
             test = transformation.feature_engineering(test)
 
 
@@ -73,12 +85,16 @@ class DataTransformation:
             ### Splitting the dataset
             X_train,X_test,y_train,y_test = train_test_split(X,y,train_size=0.8,random_state=42)
                        
-
+            
+            ######################## PCA ########################################
+            X_train_scaled,X_test_scaled,test_scaled = self.pca_transformation(X_train,X_test,test)
+            
+            
             ################# SCALING THE FEATURES ########################
 
             scaler =MinMaxScaler()
-            X_train = scaler.fit_transform(X_train)
-            X_test = scaler.transform(X_test)
+            X_train = scaler.fit_transform(X_train_scaled)
+            X_test = scaler.transform(X_test_scaled)
             logging.info("dataset has been fully ready to build a model upon")
 
 
@@ -90,7 +106,7 @@ class DataTransformation:
             utils.save_numpy_array(file_path=self.data_transformation_config.transformed_val_data_path,
                                    array=df_test)
             utils.save_numpy_array(file_path=self.data_transformation_config.transformed_test_data_path,
-                                   array=test)
+                                   array=test_scaled)
             
             data_transformation_artifact = artifact_entity.DataTransformationArtifact(
                 transform_object_file_path=self.data_transformation_config.transform_object_path,

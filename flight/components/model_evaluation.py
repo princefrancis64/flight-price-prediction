@@ -38,21 +38,20 @@ class ModelEvaluation:
                 logging.info(f"Model Evaluation Artifact:{model_eval_artifact}")
                 return model_eval_artifact
             
+            
             ### ELSE FINDING THE LOCATION OF LATEST TRANSFORMER,MODEL
             logging.info(f"finding the location of latest, transformer, model")
-            prev_transformer_path = self.model_resolver.get_latest_transformer_path()
+            # prev_transformer_path = self.model_resolver.get_latest_transformer_path()
             prev_model_path = self.model_resolver.get_latest_model_path()
 
-            #### LOADING THE TRANSFOMRER, MODEL OF PREVIOUSLY TRAINED MODEL
+
+            #### LOADING THE TRANSFORMER,MODEL OF PREVIOUSLY TRAINED MODEL
             logging.info(f"Loading the transformer, model objects of previously trained model")
-            prev_transformer = load_object(file_path=prev_transformer_path)
+            # prev_transformer = load_object(file_path=prev_transformer_path)
             prev_model =  load_object(file_path=prev_model_path)
 
             ### LOADING THE TRANSFORMER, MODEL OF CURRENTLY TRAINED MODEL
             logging.info(f"Loading the transformer, model of currently trained mode")
-            current_transformer = load_object(file_path=self.data_transformation_artifact.transform_object_path)
-            current_model = load_object(file_path=self.model_trainer_artifact.model_path)
-            
 
             ##### GETTING THE ACCURACY FOR CURRENTLY TRAINED MODEL####
             acc_currently_trained = self.model_trainer_artifact.r2_score_test
@@ -64,9 +63,15 @@ class ModelEvaluation:
             y = test_df[:,-1]
             y_pred = prev_model.predict(X)
             acc_previously_trained = r2_score(y,y_pred)
+
             if acc_currently_trained<acc_previously_trained:
                 logging.info("Current Model is not better than previous model")
                 raise Exception(f"Current Model is not better than previous model")
+            elif (acc_currently_trained-acc_previously_trained)<self.model_evaluation_config.change_threshold:
+                logging.info("New Model is not much of an improvement")
+                raise Exception(f"New Model is not much of an improvement")
+            
+            logging.info("Current Model is better than Previous model")
             model_eval_artifact = artifact_entity.ModelEvaluationArtifact(is_model_accepted=True,
                                                           improved_accuracy=acc_currently_trained-acc_previously_trained)
             logging.info(f"Model Evaluation Artifact:{model_eval_artifact}")

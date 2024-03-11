@@ -28,3 +28,8 @@ class ModelTrainerArtifact:
 class ModelEvaluationArtifact:
     is_model_accepted:True
     improved_accuracy:float
+
+@dataclass
+class ModelPusherArtifact:
+    improved_model_path:str
+    improved_transformer_path:str

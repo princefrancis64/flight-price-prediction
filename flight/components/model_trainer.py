@@ -1,14 +1,13 @@
 from flight.entity import artifact_entity,config_entity
 from flight.exception import FlightException
 from flight.logger import logging
-import os,sys
-import pandas as pd, numpy as np
+import sys
+import numpy as np
 from catboost import CatBoostRegressor
 from flight import utils
 from sklearn.metrics import r2_score
-from sklearn.decomposition import PCA
 from sklearn.model_selection import RandomizedSearchCV
-from sklearn.model_selection import train_test_split
+from sklearn.ensemble import GradientBoostingRegressor
 
 class ModelTrainer:
     
@@ -21,40 +20,36 @@ class ModelTrainer:
         except Exception as e:
             raise FlightException(e,sys)
         
-    
-    def pca_transformation(self,X_train,X_test):
-        try:
-            pca=PCA(n_components=18)
-            X_train_pca = pca.fit_transform(X_train)
-            X_test_pca = pca.transform(X_test)
-            return X_train_pca,X_test_pca
-        except Exception as e:
-            raise FlightException(e,sys)
-
     def train_model(self,X_train,y_train):
         try:
-            model = CatBoostRegressor()
+            model = GradientBoostingRegressor()
             model.fit(X_train,y_train)
             return model
         except Exception as e:
             raise FlightException(e,sys)
         
     def hyper_param_tuning(self,X_train,X_test,y_train,y_test):
-        param_grid = { 
-                        'depth': [4, 6, 8, 10],  # Depth of trees
-                    }
-        estimator = CatBoostRegressor()
-        random_search = RandomizedSearchCV(estimator=estimator,param_distributions=param_grid,
-                                           n_jobs=-1,cv=5,scoring='neg_mean_squared_error',verbose=False)
+        gb = GradientBoostingRegressor()
+        param_grid = {
+        'learning_rate': [0.01, 0.05, 0.1],  # Learning rate
+        'n_estimators': [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],  # Number of boosting stages
+        'max_depth': [3, 4, 5, 6, 7],  # Maximum depth of the individual estimators
+        'min_samples_split': [2, 5, 10],  # Minimum number of samples required to split an internal node
+        'min_samples_leaf': [1, 2, 4],  # Minimum number of samples required to be at a leaf node
+        'max_features': ['sqrt', 'log2'],  # Number of features to consider when looking for the best split
+        'subsample': [0.6, 0.7, 0.8, 0.9, 1.0],  # Fraction of samples used for fitting the individual base learners # Random seed for reproducibility
+            }
+        random_search = RandomizedSearchCV(estimator=gb,param_distributions=param_grid,
+                            verbose=3,n_jobs=-1,cv=5,scoring='neg_mean_squared_error')
         random_search.fit(X_train,y_train)
-        cat_best = random_search.best_estimator_
-        y_train_pred= cat_best.predict(X_train)
-        r2_train_cat = r2_score(y_train,y_train_pred)
-        y_test_pred = cat_best.predict(X_test)
-        r2_test_cat = r2_score(y_test,y_test_pred)
-        logging.info(f"Train Acc After Hyperparameter tuning:{r2_train_cat}")
-        logging.info(f"Test Acc after Hyperparameter tuning:{r2_test_cat}")
-        return r2_test_cat,r2_train_cat,cat_best
+        gb_best = random_search.best_estimator_
+        y_train_pred= gb_best.predict(X_train)
+        r2_train_gb = r2_score(y_train,y_train_pred)
+        y_test_pred = gb_best.predict(X_test)
+        r2_test_gb = r2_score(y_test,y_test_pred)
+        logging.info(f"Train Acc After Hyperparameter tuning:{r2_train_gb}")
+        logging.info(f"Test Acc after Hyperparameter tuning:{r2_test_gb}")
+        return r2_train_gb,r2_test_gb,gb_best
 
         
     def initiate_trainer_modle(self,)->artifact_entity.ModelTrainerArtifact:
@@ -70,25 +65,17 @@ class ModelTrainer:
             y_train = df_train[:,-1]
             y_test = df_test[:,-1]
 
-            ######################## PCA ########################################
-            X_train_scaled,X_test_scaled = self.pca_transformation(X_train,X_test)
-            
-            cat = CatBoostRegressor()
-            cat.fit(X_train_scaled,y_train)
-            y_pred = cat.predict(X_test_scaled)
-            print(r2_score(y_test,y_pred))
-
             ######################## TRAINING THE MODEL ##########################
-            logging.info("Training the model")
-            model = self.train_model(X_train_scaled,y_train)
+            model = self.train_model(X_train,y_train)
+            
 
             logging.info("Calculating the r2_score of train_set")
-            y_train_pred = model.predict(X_train_scaled)
+            y_train_pred = model.predict(X_train)
             r2_score_train = r2_score(y_train,y_train_pred)
             
 
             logging.info("Calculating the r2_score of test_set ")
-            y_test_pred = model.predict(X_test_scaled)
+            y_test_pred = model.predict(X_test)
             r2_score_test = r2_score(y_test,y_test_pred)
             logging.info(f'Without hyperparameter tuning')  
 
@@ -106,16 +93,17 @@ class ModelTrainer:
                                 \n [Actual threshold:{diff}]")
             
             ################### HYPERPARAMETER TUNING ####################################
-            # r2_train_cat,r2_test_cat,best_estimator = self.hyper_param_tuning(
-            #     X_train= X_train_scaled,
-            #     X_test = X_test_scaled,
-            #     y_train = y_train,
-            #     y_test = y_test)
-            # if (r2_train_cat>r2_score_train) and (r2_test_cat>r2_score_test):
-            #     r2_score_train = r2_train_cat
-            #     r2_score_test = r2_test_cat
-            #     model = best_estimator
-            #     logging.info(f' Model accuracy increased with hyperparameter tuning')
+
+            r2_train_gb,r2_test_gb,best_estimator = self.hyper_param_tuning(
+                                                                X_train= X_train,
+                                                                X_test = X_test,
+                                                                y_train = y_train,
+                                                                y_test = y_test)
+            if (r2_train_gb>r2_score_train) and (r2_test_gb>r2_score_test):
+                r2_score_train = r2_train_gb
+                r2_score_test = r2_test_gb
+                model = best_estimator
+                logging.info(f' Model accuracy increased with hyperparameter tuning')
                 
 
 
@@ -132,6 +120,7 @@ class ModelTrainer:
                 r2_score_test= r2_score_test
             )
                 
+            logging.info(f"Model Trainer Artifact:{model_trainer_artifact}")
             return model_trainer_artifact
         except Exception as e:
             raise FlightException(e,sys)
