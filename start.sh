@@ -1,3 +1,3 @@
 #!bin/sh
 nohup airflow scheduler &
-airflow webserver
+exec airflow webserver
