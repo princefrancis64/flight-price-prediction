@@ -1,0 +1,14 @@
+__pycache__
+.ipynb_checkpoints
+artifact
+logs
+saved_models
+*.egg_info
+.env
+*.pdf
+data_dump.py
+README.md
+*.xlsx
+*.ipynb
+*.txt
+
