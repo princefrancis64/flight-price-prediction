@@ -2,7 +2,7 @@ FROM python:3.8
 USER root
 RUN mkdir /app
 # Copy the application code into the container
-COPY ./app/ /app/
+COPY ./app/
 WORKDIR /app/
 RUN ls
 RUN pip3 install -r requirements.txt
