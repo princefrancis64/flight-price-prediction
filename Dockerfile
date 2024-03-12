@@ -3,7 +3,7 @@ USER root
 RUN mkdir /app
 COPY . /app/
 WORKDIR /app/
-RUN pip2 install -r requirements.txt
+RUN pip install -r requirements.txt
 ENV AIRFLOW__CORE_DAGBAG_IMPORT_TIMEOUT=1000
 ENV AIRFLOW__CORE_ENABLE_XCOM_PICKLING=True
 RUN airflow db init
