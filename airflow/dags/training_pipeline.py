@@ -8,13 +8,13 @@ from airflow.operators.python import PythonOperator
 
 with DAG(
     'flight_price_training',
-    default_args={'retries',2},
+    default_args={'retries':2},
     ## [END default_args]
     description = "Flight Price Prediction",
     schedule_interval="@weekly",
     start_date=pendulum.datetime(2024,3,15,tz='UTC'),
     catchup=False,
-    tags = ['example']
+    tags = ['example'],
 )as dag:
     
 
