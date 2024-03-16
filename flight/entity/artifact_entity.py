@@ -4,7 +4,6 @@ from dataclasses import dataclass
 class DataIngestionArtifact:
     feature_store_file_path:str
     train_file_path:str
-    val_file_path:str
     test_file_path:str
 
 @dataclass
@@ -13,9 +12,9 @@ class DataValidationArtifact:
 
 @dataclass
 class DataTransformationArtifact:
-    transform_object_file_path:str
+    pca_object_file_path:str
+    min_max_scaler_file_path:str
     train_transformed_data:str
-    val_transformed_data:str
     test_transformed_data:str
 
 @dataclass
@@ -32,4 +31,5 @@ class ModelEvaluationArtifact:
 @dataclass
 class ModelPusherArtifact:
     improved_model_path:str
-    improved_transformer_path:str
+    improved_pca_path:str
+    improved_min_max_path:str

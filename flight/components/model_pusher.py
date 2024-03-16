@@ -4,7 +4,7 @@ import os,sys
 from flight.entity import artifact_entity,config_entity
 from flight.resolver import ModelResolver
 from flight.utils import load_object,save_object
-from flight.entity.config_entity import TRANSFORM_OBJECT_FILE_NAME,MODEL_FILE_NAME
+from flight.entity.config_entity import MODEL_FILE_NAME,PCA_OBJECT_FILE_NAME,MIN_MAX_SCALER_OBJECT_FILE_NAME
 
 
 class ModelPusher:
@@ -37,21 +37,28 @@ class ModelPusher:
             improved_folder_model_path = os.path.join(improved_folder_path,"model",MODEL_FILE_NAME)
             os.makedirs(os.path.dirname(improved_folder_model_path),exist_ok=True)
             
-            ## creating the new transformer folder inside the new folder
-            improved_folder_transformer_path = os.path.join(improved_folder_path,"transformer",TRANSFORM_OBJECT_FILE_NAME)
-            os.makedirs(os.path.dirname(improved_folder_transformer_path),exist_ok=True)
 
-            #####   GETTING THE MODEL AND TRANSFORMER OF THE CURRENT MODEL TO BE PUSHED #####
+            ## creating the new pca folder inside the new folder
+            improved_folder_pca_path = os.path.join(improved_folder_path,"pca",PCA_OBJECT_FILE_NAME)
+            os.makedirs(os.path.dirname(improved_folder_pca_path),exist_ok=True)
+
+            ## creating the new min_max folder inside the new folder
+            improved_folder_min_max_path = os.path.join(improved_folder_path,"min_max",MIN_MAX_SCALER_OBJECT_FILE_NAME)
+            os.makedirs(os.path.dirname(improved_folder_min_max_path),exist_ok=True)
+
+            #####   GETTING THE MODEL,pca, min_max object  OF THE CURRENT MODEL TO BE PUSHED #####
             model = load_object(self.model_trainer_artifact.model_path)
-            transformer = load_object(self.data_transformation_artifact.transform_object_file_path)
-            logging.info("loaded the model and transformer object")
+            pca = load_object(self.data_transformation_artifact.pca_object_file_path)
+            min_max = load_object(self.data_transformation_artifact.min_max_scaler_file_path)
+            logging.info("loaded the model,imputer object,pca object and min_max object")
 
             
-            ##### SAVING THE IMPROVED MODEL AND TRANSFORMER TO THE NEW FOLDER #########
+            ##### SAVING THE IMPROVED MODEL,PCA,MIN_MAX TO THE NEW FOLDER #########
             save_object(file_path=improved_folder_model_path,obj=model)
-            save_object(file_path=improved_folder_transformer_path,obj=transformer)
+            save_object(file_path=improved_folder_pca_path,obj=pca)
+            save_object(file_path=improved_folder_min_max_path,obj=min_max)
             
-            ######## SAVING THE CURRENT MODEL AND TRANSFORMER TO MODEL PUSHER DIR######
+            ######## SAVING THE CURRENT MODEL,PCA,MIN_MAX TO MODEL PUSHER DIR######
             ### creating the model pusher dir
             os.makedirs(self.model_pusher_config.model_pusher_dir)
 
@@ -59,12 +66,17 @@ class ModelPusher:
             os.makedirs(os.path.dirname(self.model_pusher_config.model_pusher_model_dir))
             save_object(file_path=self.model_pusher_config.model_pusher_model_dir,obj=model)
 
-            ### creating the transformer dir and saving the transformer object
-            os.makedirs(os.path.dirname(self.model_pusher_config.model_pusher_transformer_dir))
-            save_object(file_path=self.model_pusher_config.model_pusher_transformer_dir,obj=transformer) 
+            ### creating the pca dir and saving the pca object
+            os.makedirs(os.path.dirname(self.model_pusher_config.model_pusher_pca_dir))
+            save_object(file_path=self.model_pusher_config.model_pusher_pca_dir,obj=pca)
+
+            ### creating the min_max dir and saving the min_max object
+            os.makedirs(os.path.dirname(self.model_pusher_config.model_pusher_min_max_dir))
+            save_object(file_path=self.model_pusher_config.model_pusher_min_max_dir,obj=min_max)
 
             model_pusher_artifact = artifact_entity.ModelPusherArtifact(improved_model_path=improved_folder_model_path,
-                                                                        improved_transformer_path=improved_folder_transformer_path)
+                                                                        improved_pca_path=improved_folder_pca_path,
+                                                                        improved_min_max_path=improved_folder_min_max_path)
             logging.info(f"Model Pusher Artifact{model_pusher_artifact}")
 
         except Exception as e:

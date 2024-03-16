@@ -56,7 +56,7 @@ class ModelTrainer:
         try:
             logging.info(f"Initiating the Model Training Process")
             df_train = utils.load_numpy_array(file_path=self.data_transformation_artifact.train_transformed_data)
-            df_test = utils.load_numpy_array(file_path=self.data_transformation_artifact.val_transformed_data)
+            df_test = utils.load_numpy_array(file_path=self.data_transformation_artifact.test_transformed_data)
 
             
             logging.info("splitting into independent and output feature")
@@ -94,16 +94,16 @@ class ModelTrainer:
             
             ################### HYPERPARAMETER TUNING ####################################
 
-            r2_train_gb,r2_test_gb,best_estimator = self.hyper_param_tuning(
-                                                                X_train= X_train,
-                                                                X_test = X_test,
-                                                                y_train = y_train,
-                                                                y_test = y_test)
-            if (r2_train_gb>r2_score_train) and (r2_test_gb>r2_score_test):
-                r2_score_train = r2_train_gb
-                r2_score_test = r2_test_gb
-                model = best_estimator
-                logging.info(f' Model accuracy increased with hyperparameter tuning')
+            # r2_train_gb,r2_test_gb,best_estimator = self.hyper_param_tuning(
+            #                                                     X_train= X_train,
+            #                                                     X_test = X_test,
+            #                                                     y_train = y_train,
+            #                                                     y_test = y_test)
+            # if (r2_train_gb>r2_score_train) and (r2_test_gb>r2_score_test):
+            #     r2_score_train = r2_train_gb
+            #     r2_score_test = r2_test_gb
+            #     model = best_estimator
+            #     logging.info(f' Model accuracy increased with hyperparameter tuning')
                 
 
 

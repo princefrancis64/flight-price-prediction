@@ -6,9 +6,9 @@ from flight.exception import FlightException
 
 FILE_NAME = 'flight_price.csv'
 TRAIN_FILE_NAME= 'train.csv'
-VAL_FILE_NAME = 'val.csv'
 TEST_FILE_NAME = 'test.csv'
-TRANSFORM_OBJECT_FILE_NAME = 'simple_imputer.pkl'
+PCA_OBJECT_FILE_NAME = "pca.pkl"
+MIN_MAX_SCALER_OBJECT_FILE_NAME = "min_max.pkl"
 MODEL_FILE_NAME = "model.pkl"
 
 class TrainingPipelineConfig:
@@ -20,12 +20,10 @@ class DataIngestionConfig:
 
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
         self.database_name ='flight'
-        self.collection_name1='train'
-        self.collection_name2 ='test'
+        self.collection_name='price'
         self.data_ingestion_dir = os.path.join(training_pipeline_config.artifact_dir,"data_ingestion")
         self.feature_store_file_path = os.path.join(self.data_ingestion_dir,"feature_store",FILE_NAME)
         self.train_file_path  = os.path.join(self.data_ingestion_dir,"dataset",TRAIN_FILE_NAME)
-        self.val_file_path = os.path.join(self.data_ingestion_dir,"dataset",VAL_FILE_NAME)
         self.test_file_path = os.path.join(self.data_ingestion_dir,"dataset",TEST_FILE_NAME)
 
     def to_dict(self,)->dict:
@@ -47,9 +45,9 @@ class DataTransformationConfig:
 
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
         self.data_transformation_dir = os.path.join(training_pipeline_config.artifact_dir,"data_transformation")
-        self.transform_object_path = os.path.join(self.data_transformation_dir,"imputer_object",TRANSFORM_OBJECT_FILE_NAME)
+        self.pca_object_path = os.path.join(self.data_transformation_dir,"pca",PCA_OBJECT_FILE_NAME)
+        self.min_max_object_path = os.path.join(self.data_transformation_dir,"min_max",MIN_MAX_SCALER_OBJECT_FILE_NAME)
         self.transformed_train_data_path = os.path.join(self.data_transformation_dir,"train_transformed_data",TRAIN_FILE_NAME.replace("csv","npz"))
-        self.transformed_val_data_path = os.path.join(self.data_transformation_dir,"val_transformed_data", VAL_FILE_NAME.replace("csv","npz"))
         self.transformed_test_data_path = os.path.join(self.data_transformation_dir,"test_transformed_data",TEST_FILE_NAME.replace("csv","npz"))
 
         
@@ -72,6 +70,8 @@ class ModelPusherConfig:
     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
         self.model_pusher_dir = os.path.join(training_pipeline_config.artifact_dir,"model_pusher")
         self.model_pusher_model_dir = os.path.join(self.model_pusher_dir,"model",MODEL_FILE_NAME)
-        self.model_pusher_transformer_dir = os.path.join(self.model_pusher_dir,"transformer",TRANSFORM_OBJECT_FILE_NAME)
+        self.model_pusher_pca_dir = os.path.join(self.model_pusher_dir,"pca",PCA_OBJECT_FILE_NAME)
+        self.model_pusher_min_max_dir = os.path.join(self.model_pusher_dir,"min_max",MIN_MAX_SCALER_OBJECT_FILE_NAME)
+
 
           

@@ -6,6 +6,8 @@ import os,sys
 from flight.resolver import ModelResolver
 from flight.utils import load_object, load_numpy_array
 from sklearn.metrics import r2_score
+from flight.transformation import feature_engineering
+import pandas as pd,numpy as np
 
 class ModelEvaluation:
 
@@ -39,29 +41,46 @@ class ModelEvaluation:
                 return model_eval_artifact
             
             
-            ### ELSE FINDING THE LOCATION OF LATEST TRANSFORMER,MODEL
-            logging.info(f"finding the location of latest, transformer, model")
-            # prev_transformer_path = self.model_resolver.get_latest_transformer_path()
+            ### ELSE FINDING THE LOCATION OF PREVIOUS MODEL,PCA,MIN_MAX_SCALER
+            logging.info(f"finding the location of  model,pca, min_max_scaler")
+            prev_pca_path = self.model_resolver.get_latest_pca_path()
+            prev_min_max_path = self.model_resolver.get_latest_min_max_path()
             prev_model_path = self.model_resolver.get_latest_model_path()
 
 
-            #### LOADING THE TRANSFORMER,MODEL OF PREVIOUSLY TRAINED MODEL
-            logging.info(f"Loading the transformer, model objects of previously trained model")
-            # prev_transformer = load_object(file_path=prev_transformer_path)
+            #### LOADING THE OBJECT FOR MODEL,PCA,MIN_MAX_SCALER OF PREVIOUSLY TRAINED MODEL
+            logging.info(f"Loading the model,pca,min_max_scaler objects of previously trained model")
+            prev_pca = load_object(file_path=prev_pca_path)
+            prev_min_max = load_object(file_path=prev_min_max_path)
             prev_model =  load_object(file_path=prev_model_path)
-
-            ### LOADING THE TRANSFORMER, MODEL OF CURRENTLY TRAINED MODEL
-            logging.info(f"Loading the transformer, model of currently trained mode")
 
             ##### GETTING THE ACCURACY FOR CURRENTLY TRAINED MODEL####
             acc_currently_trained = self.model_trainer_artifact.r2_score_test
+            logging.info(f"Current trained model accuracy is {acc_currently_trained}")
 
-            #### GETTING THE ACCURACY FOR PREVIOUSLY TRAINED MODEL #####
-            test_df = load_numpy_array(file_path=self.data_transformation_artifact.val_transformed_data)
-            ### separating the input and output variable
-            X = test_df[:,:-1]
-            y = test_df[:,-1]
-            y_pred = prev_model.predict(X)
+            ### reading the dataframe
+            df = pd.read_csv(self.data_ingestion_artifact.feature_store_file_path)
+
+            ## dropping all the null values
+            df.dropna(inplace=True)
+            df.reset_index(drop=True,inplace=True)
+
+            X = df.iloc[:,:-1]
+            y = df.iloc[:,-1]
+            ## Feature Engineering
+            X = feature_engineering(X)
+
+            ### scaling the features using previous scaler
+            X = prev_min_max.transform(X)
+
+            ### PCA implementation using previous pca
+            X_scaled = prev_pca.transform(X)
+
+            ## getting the outliers corrected
+            y[y>40000] = np.median(y)
+
+            ### Predicting the model
+            y_pred = prev_model.predict(X_scaled)
             acc_previously_trained = r2_score(y,y_pred)
 
             if acc_currently_trained<acc_previously_trained:

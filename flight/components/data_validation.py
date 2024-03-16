@@ -112,7 +112,7 @@ class DataValidation:
             logging.info(f"Reading train dataframe")
             train_df = pd.read_csv(self.data_ingestion_artifact.train_file_path)
             logging.info(f"Reading test dataframe")
-            test_df = pd.read_csv(self.data_ingestion_artifact.val_file_path)
+            test_df = pd.read_csv(self.data_ingestion_artifact.test_file_path)
 
             ###################### DROP COLS WITH NULL VALUES ABOVE THRESHOLD ###############################
 
