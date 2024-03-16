@@ -8,7 +8,6 @@ import numpy as np
 from datetime import datetime
 from flight.transformation import feature_engineering
 from flight.utils import get_collection_as_dataframe
-from flight.entity.config_entity import d
 
 PREDICTION_DIR="predicted_files"
 
