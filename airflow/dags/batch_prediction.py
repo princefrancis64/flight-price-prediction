@@ -7,7 +7,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 
 with DAG(
-    'flight_price_training',
+    'flight_price_prediction',
     default_args={'retries':2},
     ## [END default_args]
     description = "Flight Price Prediction",
