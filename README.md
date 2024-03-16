@@ -1,4 +1,4 @@
-![Flight Price Prediction](https://www.amexglobalbusinesstravel.com/content/uploads/2017/11/Night-Landing-iStock-539327295.jpg)
+<img src="https://www.amexglobalbusinesstravel.com/content/uploads/2017/11/Night-Landing-iStock-539327295.jpg">
 
 
 ## FLIGHT PRICE PREDICTION
