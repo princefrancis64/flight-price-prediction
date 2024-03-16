@@ -7,17 +7,21 @@ import os,sys
 import numpy as np
 from datetime import datetime
 from flight.transformation import feature_engineering
+from flight.utils import get_collection_as_dataframe
+from flight.entity.config_entity import d
 
 PREDICTION_DIR="predicted_files"
 
 def start_batch_prediction(input_file_path):
     try:
+        database_name='flight'
+        collection_name='price2'
         input_file_path = "input_files\Test_set.xlsx"
         os.makedirs(PREDICTION_DIR,exist_ok=True)
         logging.info(f"Creating model resolve object")
         model_resolver = ModelResolver(model_registry="saved_models")
         logging.info(f"Reading file:{input_file_path}")
-        df = pd.read_excel(input_file_path)
+        df = get_collection_as_dataframe(database_name=database_name,collection_name=collection_name)
 
 
         ## replacing the na values with np.NAN
