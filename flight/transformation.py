@@ -5,6 +5,14 @@ from flight import utils
 from sklearn.preprocessing import LabelEncoder
 
 def feature_engineering(df):
+    """
+    Description: This function helps in feature engineering
+    =========================================================
+    Params:
+    df :pd.DataFrame which needs to be passed
+    =========================================================
+    returns pd.DataFrame
+    """
     ### Converting the Date_of_Journey to datetime
     df['Date_of_Journey']=pd.to_datetime(df['Date_of_Journey'],format='%d/%m/%Y')
     

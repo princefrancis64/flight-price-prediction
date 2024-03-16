@@ -12,6 +12,15 @@ import warnings
 warnings.filterwarnings('ignore')
 
 def get_collection_as_dataframe(database_name:str,collection_name:str)->pd.DataFrame:
+    """
+    Description: This function return collection as dataframe
+    =========================================================
+    Params:
+    database_name :database_name
+    collection_name : collection_name
+    =========================================================
+    return Pandas dataframe of a collection
+    """
     try:
         logging.info(f"Reading data from database:{database_name} and collection:{collection_name}")
         df = pd.DataFrame(list(mongo_client[database_name][collection_name].find()))
@@ -24,6 +33,15 @@ def get_collection_as_dataframe(database_name:str,collection_name:str)->pd.DataF
         raise FlightException(e,sys)
     
 def write_yaml_file(file_path,data:dict):
+    """
+    Description: This function dumps data into yaml file
+    =========================================================
+    Params:
+    file_path :file_path where data has to be dumped
+    data : dictionary
+    =========================================================
+    returns file.yaml
+    """
     try:
         file_dir = os.path.dirname(file_path)
         os.makedirs(file_dir,exist_ok=True)
@@ -34,6 +52,15 @@ def write_yaml_file(file_path,data:dict):
     
 
 def save_object(file_path:str,obj:object)->None:
+    """
+    Description: This function saves an object to a file path
+    =========================================================
+    Params:
+    file_path :file_path where object has to be saved
+    obj : object
+    =========================================================
+    returns an obejct
+    """
     try:
         logging.info("Entered the save object method of utils")
         os.makedirs(os.path.dirname(file_path),exist_ok=True)
@@ -45,6 +72,15 @@ def save_object(file_path:str,obj:object)->None:
         
 
 def save_numpy_array(file_path:str,array:np.array):
+    """
+    Description: This function saves a numpy array to a file path
+    =========================================================
+    Params:
+    file_path :file_path where numpy array has to be saved
+    array : np.array
+    =========================================================
+    returns np.array
+    """
     try:
         dir_path = os.path.dirname(file_path)
         os.makedirs(dir_path,exist_ok=True)
@@ -55,6 +91,14 @@ def save_numpy_array(file_path:str,array:np.array):
     
 
 def load_numpy_array(file_path:str)->np.array:
+    """
+    Description: This function loads a numpy array to a file path
+    =========================================================
+    Params:
+    file_path :file_path where from where numpy array is loaded
+    =========================================================
+    returns np.array
+    """
     try:
         with open(file_path,"rb") as file_obj:
             return np.load(file_obj,allow_pickle=True)
@@ -63,6 +107,14 @@ def load_numpy_array(file_path:str)->np.array:
     
 
 def load_object(file_path:str)->object:
+    """
+    Description: This function loads an object to a file path
+    =========================================================
+    Params:
+    file_path :file_path where from where object is loaded
+    =========================================================
+    returns an obejct
+    """
     try:
         if not os.path.exists(file_path):
             raise Exception(f"The file path {file_path} do not exists")
