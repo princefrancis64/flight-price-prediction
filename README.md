@@ -97,3 +97,10 @@
 
     `NOTE`: ALL THE DATA ANALYSIS HAS BEEN DONE IN THE NOTEBOOK CALLED `Flight Price Prediction.ipynb`
 
+
+### Docker commands
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker ubuntu
+newgrp docker
+
